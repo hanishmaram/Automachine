@@ -23,25 +23,26 @@ IWebDriver driver = new ChromeDriver(options);
 driver.Navigate().GoToUrl("https://chartink.com/screener/copy-ema-daily-convergence-10-20-50-200-vinay-kumar-yadi-26");
 var tableBody = driver.FindElement(By.XPath("//*[@id=\"DataTables_Table_0\"]/tbody"));
 var rows = tableBody.FindElements(By.TagName("tr"));
-List<dynamic> convergenceList = new List<dynamic>();
+List<StockItem> convergenceList = new();
 foreach (var item in rows)
 {
     var tds = item.FindElements(By.TagName("td"));
     string name = tds[1].Text;
     string symbol = tds[2].Text;
-    convergenceList.Add(new { Name = name, Symbol = symbol });
+    convergenceList.Add(new(name, symbol));
 }
 driver.Close();
 
-string botToken = "1784206810:AAEdxWTwVpVbn3SsnusqT2OzrGCvHjQvbzE";
+string botToken = "";
 
 var botClient = new TelegramBotClient(botToken);
 
-ChatId chatId = new ChatId("@StockUpdatesIndia");
+ChatId chatId = new("@StockUpdatesIndia");
 
-StringBuilder sb=new StringBuilder();
+StringBuilder sb = new();
 sb.Append("Convergance List :: \n");
-convergenceList.ForEach(stock => {
+convergenceList.ForEach(stock =>
+{
     sb.Append($"{stock.Name} - {stock.Symbol} \n");
 });
 
@@ -51,3 +52,5 @@ Message message = await botClient.SendTextMessageAsync(
     chatId: chatId,
     text: sb.ToString()
     );
+
+record StockItem(string Name, string Symbol);
