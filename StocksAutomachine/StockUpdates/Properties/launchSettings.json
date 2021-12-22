@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ConverganceUpdates": {
+      "commandName": "Project",
+      "commandLineArgs": "CONVERGANCE"
+    }
+  }
+}

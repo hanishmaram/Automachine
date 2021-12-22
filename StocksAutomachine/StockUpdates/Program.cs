@@ -14,13 +14,23 @@ using System.Text;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
+
+String[] inputArgs = Environment.GetCommandLineArgs();
+string argType = inputArgs[1];
+
+(string url, string processName) = argType switch {
+    "CONVERGANCE"=> ("https://chartink.com/screener/copy-ema-daily-convergence-10-20-50-200-vinay-kumar-yadi-26","Convergance"),
+    "HIGH-VOLUME-50-EMA" => ("https://chartink.com/screener/copy-50-ema-crossover-with-high-volumes-3","High Volume 50 EMA Crossover"),
+    _=>("","")
+};
+
 ChromeOptions options = new();
 options.AddArgument("--headless");
 options.AddArgument("--disable-gpu");
 options.AddArgument("--no-sandbox");
 
 IWebDriver driver = new ChromeDriver(options);
-driver.Navigate().GoToUrl("https://chartink.com/screener/copy-ema-daily-convergence-10-20-50-200-vinay-kumar-yadi-26");
+driver.Navigate().GoToUrl(url);
 var tableBody = driver.FindElement(By.XPath("//*[@id=\"DataTables_Table_0\"]/tbody"));
 var rows = tableBody.FindElements(By.TagName("tr"));
 List<StockItem> convergenceList = new();
@@ -33,24 +43,21 @@ foreach (var item in rows)
 }
 driver.Close();
 
-string botToken = "";
-
-var botClient = new TelegramBotClient(botToken);
-
-ChatId chatId = new("@StockUpdatesIndia");
-
 StringBuilder sb = new();
-sb.Append("Convergance List :: \n");
+sb.Append($"{processName} List :: \n");
 convergenceList.ForEach(stock =>
 {
     sb.Append($"{stock.Name} - {stock.Symbol} \n");
 });
 
-
+string botToken = "";
+var botClient = new TelegramBotClient(botToken);
+ChatId chatId = new("@StockUpdatesIndia");
 
 Message message = await botClient.SendTextMessageAsync(
     chatId: chatId,
     text: sb.ToString()
     );
+
 
 record StockItem(string Name, string Symbol);
